@@ -5,6 +5,7 @@ export interface OpenAIFetchPayload {
   signal?: AbortSignal
 }
 
+/*
 export const fetchChatCompletion = async(payload: OpenAIFetchPayload) => {
   const initOptions = {
     headers: {
@@ -17,19 +18,28 @@ export const fetchChatCompletion = async(payload: OpenAIFetchPayload) => {
   }
   return fetch(`${payload.baseUrl}/v1/chat/completions`, initOptions)
 }
-
-/*
-// src/providers/openai/api.ts
-export const fetchChatCompletion = async(payload: OpenAIFetchPayload) => {
-   if (!payload.apiKey) {
-    payload.apiKey = 'sk-xxx'
-  }
-  const initOptions = {
-    // same
-  }
-  return fetch(`${payload.baseUrl}/v1/chat/completions`, initOptions)
-}
 */
+
+export const fetchChatCompletion = async(payload: OpenAIFetchPayload) => {
+  const apiKey = process.env.OPENAI_API_KEY;
+
+  if (!payload.apiKey && apiKey) {
+    payload.apiKey = apiKey
+  };
+
+  const initOptions = {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${payload.apiKey}`,
+    },
+    method: 'POST',
+    body: JSON.stringify(payload.body),
+    signal: payload.signal,
+  }
+
+  return fetch(`${payload.baseUrl}/v1/chat/completions`, initOptions);
+}
+
 export const fetchImageGeneration = async(payload: OpenAIFetchPayload) => {
   const initOptions = {
     headers: {
